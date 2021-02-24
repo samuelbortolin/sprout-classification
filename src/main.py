@@ -1,31 +1,56 @@
 from __future__ import absolute_import, annotations
 
 from copy import deepcopy
+from typing import List
 
 import cv2 as cv
 import numpy as np
 
-
 ratio = 3  # we can try to set a high threshold instead of using this ratio
 kernel_size = 3  # we can try to understand what is that
-image = cv.imread("../media/20200402_104001.jpg")  # in the future we can set the path as argument or env var
+image = cv.imread("../media/TR02 -  20200430.jpg")  # in the future we can set the path as argument or env var
 scale = (len(image[0]) * len(image) / 100000) ** (1 / 2)
-
 # rescale image all to the same standard number of pixels
 image = cv.resize(image, (0, 0), fx=(1 / scale), fy=(1 / scale))
 greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-def grab_contours(cnts):
-    # OpenCV v2.4, v4-official
-    if len(cnts) == 2:
-        return cnts[0]
-    # OpenCV v3
-    elif len(cnts) == 3:
-        return cnts[1]
+color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches\n")
 
-def canny_threshold(low_threshold: int):
+
+# return the frame applying a mask to isolate the inserted color
+def get_hsv_mask(frame_hsv):
+    if color == "w":
+        lower_color = np.array([15, 0, 100])
+        upper_color = np.array([35, 40, 255])
+    elif color == "g":  # values to be estimated using the color_picker and then tested with play_with_HSV
+        lower_color = np.array([35, 100, 100])
+        upper_color = np.array([80, 255, 255])
+    elif color == "b":  # values to be estimated using the color_picker and then tested with play_with_HSV
+        lower_color = np.array([30, 0, 0])
+        upper_color = np.array([50, 75, 200])
+    else:
+        lower_color = np.array([0, 0, 0])
+        upper_color = np.array([180, 255, 255])
+    mask = cv.inRange(frame_hsv, lower_color, upper_color)
+    mask = cv.morphologyEx(mask, cv.MORPH_OPEN, (5, 5), iterations=1)
+    mask = cv.dilate(mask, None, iterations=2)
+    res = cv.bitwise_and(frame_hsv, frame_hsv, mask=mask)
+    return res
+
+
+def grab_contours(contour_tuple: tuple) -> List[np.ndarray]:
+    # in OpenCV v2.4, v4-official
+    if len(contour_tuple) == 2:
+        return contour_tuple[0]
+    # in OpenCV v3
+    elif len(contour_tuple) == 3:
+        return contour_tuple[1]
+
+
+def canny_threshold(low_threshold: int) -> np.ndarray:
     blurred_image = cv.blur(greyscale_image, (3, 3))
     return cv.Canny(blurred_image, low_threshold, low_threshold * ratio, kernel_size)
+
 
 def canny_threshold_mask(low_threshold: int) -> int:
     blurred_image = cv.blur(greyscale_image, (3, 3))
@@ -50,10 +75,8 @@ if __name__ == "__main__":
         new_threshold = canny_threshold_mask(i)
         delta = previous_threshold - new_threshold
         previous_threshold = new_threshold
-        # print(i, ": ", delta)
         if (delta + previous_delta) < 50:
             picked_value = i
-            # print(canny_threshold(i))
             break
         previous_delta = delta
 
@@ -62,43 +85,23 @@ if __name__ == "__main__":
     edges_on_image = canny_threshold_with_image(picked_value)
     cv.imshow("relevant edges of the image", edges_on_image)
 
-    ########################################################
-    edged = canny_threshold(picked_value)
-    # try to connect edges with graph exploration of pixels
-    disconnectedNodes = np.zeros((len(edges_on_image), len(edges_on_image[0])))
-    disconnectedNodesCount = 0
-    directions = [[0, 1], [1, 0], [-1, 0], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
-    print(len(edges_on_image), len(edges_on_image[0]))
-    for i, item_i in enumerate(edges_on_image):
-        for j, item_j in enumerate(item_i):
-            if item_j.all() != 0:
-                continueFound = False
-                for direction in directions:
-                    if i + direction[0] < len(edges_on_image) and j + direction[1] < len(edges_on_image[0]) and not (edges_on_image[i + direction[0], j + direction[1]].all() != 0):
-                        continueFound = True
-                if not continueFound:
-                    disconnectedNodesCount += 1
-                    disconnectedNodes[i, j] = True
-    print("disconnected node count", disconnectedNodesCount)
-
     # try to connect open edges with contours
-    cnts = cv.findContours(edged.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    cnts = grab_contours(cnts)
+    edged = canny_threshold(picked_value)
+    contours = cv.findContours(edged.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    contours = grab_contours(contours)
     contour_image = edged.copy()
     area = 0
 
-    for c in cnts:
+    for c in contours:
         area += cv.contourArea(c)
         cv.drawContours(contour_image, [c], 0, (100, 5, 10), 10)
 
-    print(area)
-    imageFromCountours = deepcopy(image)
+    image_from_contours = deepcopy(image)
     for i, item_i in enumerate(contour_image):
         for j, item_j in enumerate(item_i):
             if item_j.all() == 0:
-                imageFromCountours[i][j] = (0, 0, 0)
-    cv.imshow("area", imageFromCountours)
-    ########################################################
+                image_from_contours[i][j] = (0, 0, 0)
+    cv.imshow("area", image_from_contours)
 
     # show original image with the edges marked with a red line
     image_and_edges = deepcopy(image)
@@ -109,17 +112,17 @@ if __name__ == "__main__":
     cv.imshow("edges on original image", image_and_edges)
 
     # try a segmentation approach
-    #ret, thresh = cv.threshold(greyscale_image, 0, cv.ADAPTIVE_THRESH_GAUSSIAN_C, 11, 2)
+    # ret, thresh = cv.threshold(greyscale_image, 0, cv.ADAPTIVE_THRESH_GAUSSIAN_C, 11, 2)
     thresh = cv.adaptiveThreshold(greyscale_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2)
     kernel = np.ones((3, 3), np.uint8)
     closing = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel, iterations=2)
     opening = cv.morphologyEx(closing, cv.MORPH_OPEN, kernel)
-    imageWithThresholdedArea = deepcopy(image)
+    image_with_threshold_area = deepcopy(image)
     for i, item_i in enumerate(opening):
         for j, item_j in enumerate(item_i):
             if item_j.all() == 0:
-                imageWithThresholdedArea[i][j] = (0, 0, 0)
-    cv.imshow("image after threshold closed image", imageWithThresholdedArea)
+                image_with_threshold_area[i][j] = (0, 0, 0)
+    cv.imshow("image after threshold closed image", image_with_threshold_area)
 
     # show threshold image with the edges marked with a red line
     bgr_thresh = cv.cvtColor(thresh, cv.COLOR_GRAY2BGR)
@@ -148,7 +151,8 @@ if __name__ == "__main__":
     # cv.imshow("unknown image", unknown)
 
     # Marker labelling
-    ret, markers = cv.connectedComponents(sure_fg)  # maybe markers with only sure_fg are less effective in the segmentation
+    ret, markers = cv.connectedComponents(
+        sure_fg)  # maybe markers with only sure_fg are less effective in the segmentation
 
     # Add one to all labels so that sure background is not 0, but 1
     markers = markers + 1
@@ -156,7 +160,8 @@ if __name__ == "__main__":
     markers[unknown == 255] = 0
 
     markers = cv.watershed(image, markers)
-    image[markers == -1] = [255, 0, 0]
-
+    image[markers == -1] = [0, 0, 255]
     cv.imshow("watershed image", image)
+
     cv.waitKey()
+    cv.destroyAllWindows()
