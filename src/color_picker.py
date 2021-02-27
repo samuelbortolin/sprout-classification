@@ -1,37 +1,33 @@
+from __future__ import absolute_import, annotations
+
 import cv2 as cv
 import numpy as np
 
 from play_with_HSV import rescale_image
 
 
+image_path = "../media/image.jpg"
 colors = []
 
 
 def on_mouse_click(event, x, y, flags, hsv_image):
     # mouse click function to store the HSV value
-
     if event == cv.EVENT_LBUTTONUP:
         colors.append(hsv_image[y, x].tolist())
 
 
 def callback(x):
-    # trackbar callback function to update HSV value
-
+    # trackbar callback function assigning trackbar position value to H, S, V high and low variables
     global H_low, H_high, S_low, S_high, V_low, V_high
-    # assign trackbar position value to H, S, V high and low variable
     H_low = cv.getTrackbarPos("low_H", "control_H")
     H_high = cv.getTrackbarPos("high_H", "control_H")
-
     S_low = cv.getTrackbarPos("low_S", "control_S")
     S_high = cv.getTrackbarPos("high_S", "control_S")
-
     V_low = cv.getTrackbarPos("low_V", "control_V")
     V_high = cv.getTrackbarPos("high_V", "control_V")
 
 
 if __name__ == "__main__":
-
-    image_path = "../media/image.jpg"
 
     while True:
         image = cv.imread(image_path)
@@ -60,8 +56,6 @@ if __name__ == "__main__":
     mask = cv.inRange(hsv_image, lower_bound, upper_bound)
     # masking HSV value selected color becomes black
     result_image = cv.bitwise_and(image, image, mask=mask)
-
-    # show image
     cv.imshow("mask", mask)
     cv.imshow("result image", result_image)
 

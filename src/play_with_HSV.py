@@ -1,3 +1,5 @@
+from __future__ import absolute_import, annotations
+
 import cv2 as cv
 import numpy as np
 
@@ -15,6 +17,7 @@ def rescale_image(image_to_rescale: np.ndarray, target_number_of_pixels: int = 1
 
 
 if __name__ == "__main__":
+
     # x flowers
     image_path = "../media/ROBI_VT01_20200507_3.png"
     image = cv.imread(image_path)

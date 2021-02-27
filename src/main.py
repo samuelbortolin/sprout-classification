@@ -6,6 +6,7 @@ from typing import List
 import cv2 as cv
 import numpy as np
 
+from canny import canny_threshold_mask, canny_threshold_with_image, canny_threshold
 from play_with_HSV import apply_mask, rescale_image
 
 
@@ -21,6 +22,7 @@ color = input("What do you want to analyze? Write w for white/flowers, g for gre
 
 
 def get_hsv_mask(original_image: np.ndarray, frame_hsv: np.ndarray) -> np.ndarray:
+    # get the image after applying hsv mask based on color of interst
     if color == "w":
         lower_bound = np.array([15, 0, 100])
         upper_bound = np.array([35, 40, 255])
@@ -37,34 +39,16 @@ def get_hsv_mask(original_image: np.ndarray, frame_hsv: np.ndarray) -> np.ndarra
 
 
 def grab_contours(contour_tuple: tuple) -> List[np.ndarray]:
-    # in OpenCV v2.4, v4-official
+    # grab contours in OpenCV v2.4, v4-official
     if len(contour_tuple) == 2:
         return contour_tuple[0]
-    # in OpenCV v3
+    # grab contours in OpenCV v3
     elif len(contour_tuple) == 3:
         return contour_tuple[1]
 
 
-def canny_threshold(greyscale_image: np.ndarray, low_threshold: int) -> np.ndarray:
-    blurred_image = cv.blur(greyscale_image, (3, 3))
-    return cv.Canny(blurred_image, low_threshold, low_threshold * ratio, kernel_size)
-
-
-def canny_threshold_mask(greyscale_image: np.ndarray, low_threshold: int) -> int:
-    blurred_image = cv.blur(greyscale_image, (3, 3))
-    detected_edges = cv.Canny(blurred_image, low_threshold, low_threshold * ratio, kernel_size)
-    mask = detected_edges != 0
-    return np.ma.sum(mask)
-
-
-def canny_threshold_with_image(greyscale_image: np.ndarray, low_threshold: int, image: np.ndarray) -> np.ndarray:
-    blurred_image = cv.blur(greyscale_image, (3, 3))
-    detected_edges = cv.Canny(blurred_image, low_threshold, low_threshold * ratio, kernel_size)
-    mask = detected_edges != 0
-    return image * (mask[:, :, None].astype(image.dtype))
-
-
 if __name__ == "__main__":
+
     # try a edge detector approach
     previous_threshold = canny_threshold_mask(greyscale_image, 25)
     previous_delta = canny_threshold_mask(greyscale_image, 24) - previous_threshold
