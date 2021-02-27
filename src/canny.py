@@ -1,10 +1,10 @@
 from __future__ import absolute_import, annotations
 
-from copy import deepcopy
-from typing import List
-
 import cv2 as cv
 import numpy as np
+
+from main import get_hsv_mask
+
 """
 since the edges aren't always really clear it is more effective to do closing first and then opening, otherwise we end up with disconnected edges
 """
@@ -35,7 +35,8 @@ ddepth = cv.CV_16S
 
 image = cv.imread("../media/IMG_20200324 LC01a BASSANI.jpg")  # in the future we can set the path as argument or env var
 image = rescale_image(image)
-image_blurred = cv.GaussianBlur(image, (3, 3), 0)
+image_hsv = get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV))
+image_blurred = cv.GaussianBlur(image_hsv, (3, 3), 0)
 greyscale_image_blurred = cv.cvtColor(image_blurred, cv.COLOR_BGR2GRAY)
 greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 nderivate = 2
