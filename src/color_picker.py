@@ -7,12 +7,16 @@ from play_with_HSV import rescale_image
 colors = []
 
 
-def on_mouse_click(event, x, y, flags, image):
-    if event == cv.EVENT_LBUTTONUP:
-        colors.append(image[y, x].tolist())
+def on_mouse_click(event, x, y, flags, hsv_image):
+    # mouse click function to store the HSV value
 
-# trackbar callback function to update HSV value
+    if event == cv.EVENT_LBUTTONUP:
+        colors.append(hsv_image[y, x].tolist())
+
+
 def callback(x):
+    # trackbar callback function to update HSV value
+
     global H_low, H_high, S_low, S_high, V_low, V_high
     # assign trackbar position value to H, S, V high and low variable
     H_low = cv.getTrackbarPos("low_H", "control_H")
@@ -26,16 +30,19 @@ def callback(x):
 
 
 if __name__ == "__main__":
+
+    image_path = "../media/image.jpg"
+
     while True:
-        image = cv.imread("../media/TR02 -  20200430.jpg")
+        image = cv.imread(image_path)
         image = rescale_image(image)
         hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         if colors:
             cv.putText(hsv_image, str(colors[-1]), (10, 50), cv.FONT_HERSHEY_PLAIN, 2, (0, 0, 0), 2)
         cv.imshow("hsv image", hsv_image)
-        cv.setMouseCallback("image", on_mouse_click, hsv_image)
+        cv.setMouseCallback("hsv image", on_mouse_click, hsv_image)
 
-        if cv.waitKey(1000) & 0xFF == ord("q"):
+        if cv.waitKey(100) & 0xFF == ord("q"):
             break
 
     cv.destroyAllWindows()
@@ -60,6 +67,7 @@ if __name__ == "__main__":
 
     # wait for the user to press escape and break the while loop
     cv.waitKey()
+    cv.destroyAllWindows()
 
     # global variables
     H_low = 0
@@ -87,7 +95,7 @@ if __name__ == "__main__":
 
     while True:
         # read source image and convert to HSV color
-        image = cv.imread("../media/TR02 -  20200430.jpg")
+        image = cv.imread(image_path)
         image = rescale_image(image)
         hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
@@ -100,7 +108,8 @@ if __name__ == "__main__":
         cv.imshow("mask", mask)
         cv.imshow("result image", result_image)
 
-        cv.waitKey()
-
-        if cv.waitKey(1000) & 0xFF == ord("q"):
+        if cv.waitKey() & 0xFF == ord("q"):
             break
+
+    cv.destroyAllWindows()
+    print(lower_bound, upper_bound)
