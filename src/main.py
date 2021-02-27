@@ -12,27 +12,28 @@ from play_with_HSV import apply_mask, rescale_image
 ratio = 3  # we can try to set a high threshold instead of using this ratio
 kernel_size = 3  # we can try to understand what is that
 
-image = cv.imread("../media/TR02 -  20200430.jpg")  # in the future we can set the path as argument or env var
+image_path = "../media/TR02 -  20200430.jpg"  # in the future we can set the path as argument or env var
+image = cv.imread(image_path)
 image = rescale_image(image)
 greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches\n")
+color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches: ")
 
 
-def get_hsv_mask(original_image: np.ndarray, frame_hsv: np.ndarray) -> None:
+def get_hsv_mask(original_image: np.ndarray, frame_hsv: np.ndarray) -> np.ndarray:
     if color == "w":
         lower_bound = np.array([15, 0, 100])
         upper_bound = np.array([35, 40, 255])
     elif color == "g":  # values to be estimated using the color_picker and then tested with play_with_HSV
-        lower_bound = np.array([35, 100, 100])
+        lower_bound = np.array([20, 0, 0])
         upper_bound = np.array([80, 255, 255])
     elif color == "b":  # values to be estimated using the color_picker and then tested with play_with_HSV
-        lower_bound = np.array([30, 0, 0])
-        upper_bound = np.array([50, 75, 200])
+        lower_bound = np.array([0, 0, 0])
+        upper_bound = np.array([30, 255, 255])
     else:
         lower_bound = np.array([0, 0, 0])
         upper_bound = np.array([180, 255, 255])
-    apply_mask(deepcopy(original_image), frame_hsv, lower_bound, upper_bound)
+    return apply_mask(deepcopy(original_image), frame_hsv, lower_bound, upper_bound)
 
 
 def grab_contours(contour_tuple: tuple) -> List[np.ndarray]:
@@ -100,16 +101,18 @@ if __name__ == "__main__":
                 image_from_contours[i][j] = (0, 0, 0)
     cv.imshow("area", image_from_contours)
 
-    # show original image with the edges marked with a red line
+    # try color after edges
+    hsv_filtered_image = get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV))
+
+    # show original image and hsc filtered image with the edges marked with a red line
     image_and_edges = deepcopy(image)
     for i, item_i in enumerate(edges_on_image):
         for j, item_j in enumerate(item_i):
             if item_j.all() != 0:
                 image_and_edges[i][j] = (0, 0, 255)
+                hsv_filtered_image[i][j] = (0, 0, 255)
     cv.imshow("edges on original image", image_and_edges)
-
-    # try color after edges
-    get_hsv_mask(image_and_edges, cv.cvtColor(image_and_edges, cv.COLOR_BGR2HSV))
+    cv.imshow("edges on hsv filtered image", hsv_filtered_image)
 
     # try a segmentation approach
     # ret, thresh = cv.threshold(greyscale_image, 0, cv.ADAPTIVE_THRESH_GAUSSIAN_C, 11, 2)
