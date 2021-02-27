@@ -7,47 +7,28 @@ import cv2 as cv
 import numpy as np
 
 from canny import canny_threshold_mask, canny_threshold_with_image, canny_threshold
-from play_with_HSV import apply_mask, rescale_image
+from play_with_HSV import rescale_image, get_hsv_mask
 
-
-ratio = 3  # we can try to set a high threshold instead of using this ratio
-kernel_size = 3  # we can try to understand what is that
 
 image_path = "../media/ROBI_BO01_BBCH12_sacchetti.jpg"  # in the future we can set the path as argument or env var
-image = cv.imread(image_path)
-image = rescale_image(image)
-greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
-color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches: ")
-
-
-def get_hsv_mask(original_image: np.ndarray, frame_hsv: np.ndarray) -> np.ndarray:
-    # get the image after applying hsv mask based on color of interst
-    if color == "w":
-        lower_bound = np.array([15, 0, 100])
-        upper_bound = np.array([35, 40, 255])
-    elif color == "g":  # values to be estimated using the color_picker and then tested with play_with_HSV
-        lower_bound = np.array([20, 0, 0])
-        upper_bound = np.array([80, 255, 255])
-    elif color == "b":  # values to be estimated using the color_picker and then tested with play_with_HSV
-        lower_bound = np.array([0, 0, 0])
-        upper_bound = np.array([30, 255, 255])
-    else:
-        lower_bound = np.array([0, 0, 0])
-        upper_bound = np.array([180, 255, 255])
-    return apply_mask(deepcopy(original_image), frame_hsv, lower_bound, upper_bound)
 
 
 def grab_contours(contour_tuple: tuple) -> List[np.ndarray]:
-    # grab contours in OpenCV v2.4, v4-official
+    # grab contours
+
+    # for OpenCV v2.4, v4-official
     if len(contour_tuple) == 2:
         return contour_tuple[0]
-    # grab contours in OpenCV v3
+    # for OpenCV v3
     elif len(contour_tuple) == 3:
         return contour_tuple[1]
 
 
 if __name__ == "__main__":
+
+    image = cv.imread(image_path)
+    image = rescale_image(image)
+    greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
     # try a edge detector approach
     previous_threshold = canny_threshold_mask(greyscale_image, 25)
@@ -86,7 +67,8 @@ if __name__ == "__main__":
     cv.imshow("area", image_from_contours)
 
     # try color after edges
-    hsv_filtered_image = get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV))
+    color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches: ")
+    hsv_filtered_image = get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV), color)
     cv.imshow("hsv_filtered_image", hsv_filtered_image)
     edges_after_hsv = canny_threshold_with_image(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), picked_threshold, hsv_filtered_image)
     cv.imshow("relevant edges of the image after hsv", edges_after_hsv)

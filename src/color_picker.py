@@ -6,18 +6,27 @@ import numpy as np
 from play_with_HSV import rescale_image
 
 
-image_path = "../media/image.jpg"
+image_path = "../media/image.jpg"  # in the future we can set the path as argument or env var
 colors = []
+
+H_low = 0
+H_high = 179
+S_low = 0
+S_high = 255
+V_low = 0
+V_high = 255
 
 
 def on_mouse_click(event, x, y, flags, hsv_image):
     # mouse click function to store the HSV value
+
     if event == cv.EVENT_LBUTTONUP:
         colors.append(hsv_image[y, x].tolist())
 
 
 def callback(x):
     # trackbar callback function assigning trackbar position value to H, S, V high and low variables
+
     global H_low, H_high, S_low, S_high, V_low, V_high
     H_low = cv.getTrackbarPos("low_H", "control_H")
     H_high = cv.getTrackbarPos("high_H", "control_H")
@@ -49,27 +58,18 @@ if __name__ == "__main__":
     max_h = max(c[0] for c in colors)
     max_s = max(c[1] for c in colors)
     max_v = max(c[2] for c in colors)
+
     lower_bound = np.array([min_h, min_s, min_v])
     upper_bound = np.array([max_h, max_s, max_v])
     print(lower_bound, upper_bound)
 
     mask = cv.inRange(hsv_image, lower_bound, upper_bound)
-    # masking HSV value selected color becomes black
     result_image = cv.bitwise_and(image, image, mask=mask)
     cv.imshow("mask", mask)
     cv.imshow("result image", result_image)
 
-    # wait for the user to press escape and break the while loop
     cv.waitKey()
     cv.destroyAllWindows()
-
-    # global variables
-    H_low = 0
-    H_high = 179
-    S_low = 0
-    S_high = 255
-    V_low = 0
-    V_high = 255
 
     # create separate windows and trackbars for high,low H,S,V
     cv.namedWindow("control_H", 2)
@@ -88,7 +88,6 @@ if __name__ == "__main__":
     cv.resizeWindow("control_V", 400, 20)
 
     while True:
-        # read source image and convert to HSV color
         image = cv.imread(image_path)
         image = rescale_image(image)
         hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -98,7 +97,6 @@ if __name__ == "__main__":
 
         mask = cv.inRange(hsv_image, lower_bound, upper_bound)
         result_image = cv.bitwise_and(image, image, mask=mask)
-
         cv.imshow("mask", mask)
         cv.imshow("result image", result_image)
 
