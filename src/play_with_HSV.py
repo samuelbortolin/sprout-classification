@@ -5,15 +5,7 @@ import numpy as np
 def apply_mask(original_image: np.ndarray, hsv_image: np.ndarray, lower_bound: np.ndarray, upper_bound: np.ndarray) -> np.ndarray:
     mask = cv.inRange(hsv_image, lower_bound, upper_bound)
     # mask = cv.morphologyEx(mask, cv.MORPH_OPEN, (5, 5), iterations=1)
-    # mask = cv.dilate(mask, None, iterations=2)
-    # res = cv.bitwise_and(frame_hsv, frame_hsv, mask=mask)  # maybe use this instead of go through all the image
-
-    for i, item_i in enumerate(mask):
-        for j, item_j in enumerate(item_i):
-            if item_j.all() == 0:
-                original_image[i][j] = (0, 0, 0)
-
-    return original_image
+    return cv.bitwise_and(original_image, original_image, mask=mask)
 
 
 def rescale_image(image_to_rescale: np.ndarray, target_number_of_pixels: int = 100000) -> np.ndarray:

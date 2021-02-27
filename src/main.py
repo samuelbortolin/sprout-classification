@@ -12,7 +12,7 @@ from play_with_HSV import apply_mask, rescale_image
 ratio = 3  # we can try to set a high threshold instead of using this ratio
 kernel_size = 3  # we can try to understand what is that
 
-image_path = "../media/TR02 -  20200430.jpg"  # in the future we can set the path as argument or env var
+image_path = "../media/ROBI_BO01_BBCH12_sacchetti.jpg"  # in the future we can set the path as argument or env var
 image = cv.imread(image_path)
 image = rescale_image(image)
 greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -45,19 +45,19 @@ def grab_contours(contour_tuple: tuple) -> List[np.ndarray]:
         return contour_tuple[1]
 
 
-def canny_threshold(low_threshold: int) -> np.ndarray:
+def canny_threshold(greyscale_image: np.ndarray, low_threshold: int) -> np.ndarray:
     blurred_image = cv.blur(greyscale_image, (3, 3))
     return cv.Canny(blurred_image, low_threshold, low_threshold * ratio, kernel_size)
 
 
-def canny_threshold_mask(low_threshold: int) -> int:
+def canny_threshold_mask(greyscale_image: np.ndarray, low_threshold: int) -> int:
     blurred_image = cv.blur(greyscale_image, (3, 3))
     detected_edges = cv.Canny(blurred_image, low_threshold, low_threshold * ratio, kernel_size)
     mask = detected_edges != 0
     return np.ma.sum(mask)
 
 
-def canny_threshold_with_image(low_threshold: int) -> np.ndarray:
+def canny_threshold_with_image(greyscale_image: np.ndarray, low_threshold: int, image: np.ndarray) -> np.ndarray:
     blurred_image = cv.blur(greyscale_image, (3, 3))
     detected_edges = cv.Canny(blurred_image, low_threshold, low_threshold * ratio, kernel_size)
     mask = detected_edges != 0
@@ -66,11 +66,11 @@ def canny_threshold_with_image(low_threshold: int) -> np.ndarray:
 
 if __name__ == "__main__":
     # try a edge detector approach
-    previous_threshold = canny_threshold_mask(25)
-    previous_delta = canny_threshold_mask(24) - previous_threshold
+    previous_threshold = canny_threshold_mask(greyscale_image, 25)
+    previous_delta = canny_threshold_mask(greyscale_image, 24) - previous_threshold
     picked_threshold = 0
     for i in range(26, 1000):
-        new_threshold = canny_threshold_mask(i)
+        new_threshold = canny_threshold_mask(greyscale_image, i)
         delta = previous_threshold - new_threshold
         previous_threshold = new_threshold
         if (delta + previous_delta) < 50:
@@ -80,11 +80,11 @@ if __name__ == "__main__":
 
     # show the original and the resulting image
     cv.imshow("original image", image)
-    edges_on_image = canny_threshold_with_image(picked_threshold)
+    edges_on_image = canny_threshold_with_image(greyscale_image, picked_threshold, image)
     cv.imshow("relevant edges of the image", edges_on_image)
 
     # try to connect open edges with contours
-    edged = canny_threshold(picked_threshold)
+    edged = canny_threshold(greyscale_image, picked_threshold)
     contour_tuple = cv.findContours(edged.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     contours = grab_contours(contour_tuple)
     contour_image = edged.copy()
@@ -103,16 +103,31 @@ if __name__ == "__main__":
 
     # try color after edges
     hsv_filtered_image = get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV))
+    cv.imshow("hsv_filtered_image", hsv_filtered_image)
+    edges_after_hsv = canny_threshold_with_image(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), picked_threshold, hsv_filtered_image)
+    cv.imshow("relevant edges of the image after hsv", edges_after_hsv)
 
     # show original image and hsc filtered image with the edges marked with a red line
     image_and_edges = deepcopy(image)
+    hsv_filtered_image_and_edges = deepcopy(hsv_filtered_image)
     for i, item_i in enumerate(edges_on_image):
         for j, item_j in enumerate(item_i):
             if item_j.all() != 0:
                 image_and_edges[i][j] = (0, 0, 255)
-                hsv_filtered_image[i][j] = (0, 0, 255)
+                hsv_filtered_image_and_edges[i][j] = (0, 0, 255)
     cv.imshow("edges on original image", image_and_edges)
-    cv.imshow("edges on hsv filtered image", hsv_filtered_image)
+    cv.imshow("edges on hsv filtered image", hsv_filtered_image_and_edges)
+
+    image_and_edges_hsv = deepcopy(image)
+    hsv_filtered_image_and_edges_hsv = deepcopy(hsv_filtered_image)
+    for i, item_i in enumerate(edges_after_hsv):
+        for j, item_j in enumerate(item_i):
+            if item_j.all() != 0:
+                image_and_edges_hsv[i][j] = (0, 0, 255)
+                hsv_filtered_image_and_edges_hsv[i][j] = (0, 0, 255)
+    cv.imshow("edges after hsv on original image", image_and_edges_hsv)
+    cv.imshow("edges after hsv on hsv filtered image", hsv_filtered_image_and_edges_hsv)
+    cv.imshow("edges bitwise", cv.bitwise_and(edges_on_image, edges_after_hsv))
 
     # try a segmentation approach
     # ret, thresh = cv.threshold(greyscale_image, 0, cv.ADAPTIVE_THRESH_GAUSSIAN_C, 11, 2)
