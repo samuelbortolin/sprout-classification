@@ -3,10 +3,11 @@ from __future__ import absolute_import, annotations
 import cv2 as cv
 import numpy as np
 
-from play_with_HSV import rescale_image
+from image_utils.image_opertions import StandardImageOperations as SIO
 
 
 image_path = "../media/IMG 2020-04-29 CONTI MI01.jpeg"  # in the future we can set the path as argument or env var
+
 colors = []
 
 H_low = 0
@@ -40,7 +41,7 @@ if __name__ == "__main__":
 
     while True:
         image = cv.imread(image_path)
-        image = rescale_image(image)
+        image = SIO.rescale_image(image)
         hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         if colors:
             cv.putText(hsv_image, str(colors[-1]), (10, 50), cv.FONT_HERSHEY_PLAIN, 2, (0, 0, 0), 2)
@@ -68,27 +69,21 @@ if __name__ == "__main__":
     cv.imshow("mask", mask)
     cv.imshow("result image", result_image)
 
+    # show complementary on h
     lower_bound = np.array([0, min_s, min_v])
     upper_bound = np.array([min_h, max_s, max_v])
-    print(lower_bound, upper_bound)
-
     mask_lower = cv.inRange(hsv_image, lower_bound, upper_bound)
     result_lower_image = cv.bitwise_and(image, image, mask=mask_lower)
-    cv.imshow("complementary mask lower", mask_lower)
-    cv.imshow("complementary result_image", result_image)
 
     lower_bound = np.array([max_h, min_s, min_v])
     upper_bound = np.array([179, max_s, max_v])
-    print(lower_bound, upper_bound)
-
     mask_upper = cv.inRange(hsv_image, lower_bound, upper_bound)
     result_upper_image = cv.bitwise_and(image, image, mask=mask_upper)
-    cv.imshow("complementary mask upper", mask_upper)
-    cv.imshow("complementary result_upper_image", result_upper_image)
+
     bitwise_mask = np.bitwise_or(mask_lower, mask_upper)
     result_bitwise_image = cv.bitwise_and(image, image, mask=bitwise_mask)
-    cv.imshow("result_bitwise_image", result_bitwise_image)
-    cv.imshow("bitwise_mask", bitwise_mask)
+    cv.imshow("bitwise mask", bitwise_mask)
+    cv.imshow("result bitwise image", result_bitwise_image)
 
     cv.waitKey()
     cv.destroyAllWindows()
@@ -111,7 +106,7 @@ if __name__ == "__main__":
 
     while True:
         image = cv.imread(image_path)
-        image = rescale_image(image)
+        image = SIO.rescale_image(image)
         hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
         lower_bound = np.array([H_low, S_low, V_low])
