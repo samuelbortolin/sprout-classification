@@ -8,11 +8,12 @@ from typing import List
 from play_with_HSV import rescale_image, get_hsv_mask
 
 
-image_path = "../media/20200409_102627_PV01_lucchelli.jpg"  # in the future we can set the path as argument or env var
+image_path = "../media/20200402_104028_001.jpg"  # in the future we can set the path as argument or env var
 
 ratio = 3  # we can try to set a high threshold instead of using this ratio
 kernel_size = 3  # we can try to understand what is that
 
+percentage = 85
 scale = 1
 delta = 0
 depth = cv.CV_16S
@@ -56,6 +57,7 @@ if __name__ == "__main__":
 
     image = cv.imread(image_path)
     image = rescale_image(image)
+    image_hsv = get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV), "g")
     greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
     blurred_image = cv.GaussianBlur(image, (3, 3), 0)
@@ -78,11 +80,11 @@ if __name__ == "__main__":
         for j, itemj in enumerate(itemi):
             if itemj > 0:
                 positiveValuesArray.append(itemj)
-    percentile = np.percentile(positiveValuesArray, 85)
+    percentile = np.percentile(positiveValuesArray, percentage)
 
     for i, itemi in enumerate(open_after_closing):
         for j, itemj in enumerate(itemi):
-            if itemj < percentile:
+            if itemj <= percentile:
                 open_after_closing[i, j] = 0
     cv.imshow("percentile removed", open_after_closing)
     # try a edge detector approach
@@ -104,7 +106,6 @@ if __name__ == "__main__":
     cv.imshow("relevant edges of the image", edges_on_image)
     greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     edged = canny_threshold(greyscale_image, picked_threshold)
-    print(type(edged[0, 0]))
     bitwise_and = np.zeros((len(image), len(image[0])))
     for i, itemi in enumerate(edges_on_image):
         for j, itemj in enumerate(itemi):
@@ -112,10 +113,15 @@ if __name__ == "__main__":
                 bitwise_and[i, j] = int(255)
             else:
                 bitwise_and[i, j] = int(0)
-    print(type(bitwise_and[0, 0]))
     bitwise_and = bitwise_and.astype(np.uint8)
-    print(type(bitwise_and[0, 0]))
     cv.imshow("bitwise", bitwise_and)
+    bitwise_and_on_image = deepcopy(image_hsv)
+    for i, item_i in enumerate(bitwise_and):
+        for j, item_j in enumerate(item_i):
+            if item_j.all() != 0:
+                bitwise_and_on_image[i][j] = (0, 0, 255)
+    cv.imshow("bitwise_and_on_image", bitwise_and_on_image)
+
     contour_tuple = cv.findContours(bitwise_and.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     contours = grab_contours(contour_tuple)
     contour_image = bitwise_and.copy()
@@ -131,6 +137,12 @@ if __name__ == "__main__":
             if item_j.all() == 0:
                 image_from_contours[i][j] = (0, 0, 0)
     cv.imshow("image_from_contours", image_from_contours)
+
+    cv.imwrite("../test_images/bitwise_edges_on_image6.jpg", bitwise_and_on_image)
+    cv.imwrite("../test_images/original_image6.jpg", image)
+    cv.imwrite("../test_images/bitwise_canny_percentile6.jpg", bitwise_and)
+    cv.imwrite("../test_images/hsv_image6.jpg", image_hsv)
+    cv.imwrite("../test_images/bitwise_canny_percentile_area6.jpg", image_from_contours)
 
     cv.waitKey()
     cv.destroyAllWindows()

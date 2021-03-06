@@ -21,8 +21,13 @@ def get_hsv_mask(original_image: np.ndarray, hsv_image: np.ndarray, color: str) 
     # get the image after applying hsv mask based on color of interest
 
     if color == "w":
-        lower_bound = np.array([15, 0, 100])
-        upper_bound = np.array([35, 40, 255])
+        lower_bound = np.array([0, 0, 75])
+        upper_bound = np.array([90, 255, 255])
+        lower_image = apply_mask(original_image, hsv_image, lower_bound, upper_bound)
+        lower_bound = np.array([115, 0, 75])
+        upper_bound = np.array([179, 255, 255])
+        upper_image = apply_mask(original_image, hsv_image, lower_bound, upper_bound)
+        return cv.bitwise_or(lower_image, upper_image)
     elif color == "g":  # values to be estimated using the color_picker and then tested with play_with_HSV
         lower_bound = np.array([20, 0, 0])
         upper_bound = np.array([80, 255, 255])

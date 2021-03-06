@@ -16,13 +16,13 @@ image = cv.imread("../media/20200402_104001.jpg")  # in the future we can set th
 image = rescale_image(image)
 greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches\n")
+#color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches\n")
 
 
 def get_hsv_mask(original_image: np.ndarray, frame_hsv: np.ndarray) -> None:
     if color == "w":
-        lower_bound = np.array([15, 0, 100])
-        upper_bound = np.array([35, 40, 255])
+        lower_bound = np.array([15, 40, 100])
+        upper_bound = np.array([35, 255, 255])
     elif color == "g":  # values to be estimated using the color_picker and then tested with play_with_HSV
         lower_bound = np.array([35, 100, 100])
         upper_bound = np.array([80, 255, 255])

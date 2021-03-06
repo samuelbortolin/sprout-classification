@@ -6,7 +6,7 @@ import numpy as np
 from play_with_HSV import rescale_image
 
 
-image_path = "../media/image.jpg"  # in the future we can set the path as argument or env var
+image_path = "../media/IMG 2020-04-29 CONTI MI01.jpeg"  # in the future we can set the path as argument or env var
 colors = []
 
 H_low = 0
@@ -67,6 +67,28 @@ if __name__ == "__main__":
     result_image = cv.bitwise_and(image, image, mask=mask)
     cv.imshow("mask", mask)
     cv.imshow("result image", result_image)
+
+    lower_bound = np.array([0, min_s, min_v])
+    upper_bound = np.array([min_h, max_s, max_v])
+    print(lower_bound, upper_bound)
+
+    mask_lower = cv.inRange(hsv_image, lower_bound, upper_bound)
+    result_lower_image = cv.bitwise_and(image, image, mask=mask_lower)
+    cv.imshow("complementary mask lower", mask_lower)
+    cv.imshow("complementary result_image", result_image)
+
+    lower_bound = np.array([max_h, min_s, min_v])
+    upper_bound = np.array([179, max_s, max_v])
+    print(lower_bound, upper_bound)
+
+    mask_upper = cv.inRange(hsv_image, lower_bound, upper_bound)
+    result_upper_image = cv.bitwise_and(image, image, mask=mask_upper)
+    cv.imshow("complementary mask upper", mask_upper)
+    cv.imshow("complementary result_upper_image", result_upper_image)
+    bitwise_mask = np.bitwise_or(mask_lower, mask_upper)
+    result_bitwise_image = cv.bitwise_and(image, image, mask=bitwise_mask)
+    cv.imshow("result_bitwise_image", result_bitwise_image)
+    cv.imshow("bitwise_mask", bitwise_mask)
 
     cv.waitKey()
     cv.destroyAllWindows()
