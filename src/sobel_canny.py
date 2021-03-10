@@ -8,7 +8,7 @@ import numpy as np
 from image_utils.image_opertions import StandardImageOperations as SIO
 
 
-image_path = "../media/20200402_104028_001.jpg"  # in the future we can set the path as argument or env var
+image_path = "../media/20200402_104028_001.jpg"
 
 percentage = 85
 scale = 1
@@ -105,13 +105,6 @@ if __name__ == "__main__":
             if item_j.all() == 0:
                 image_with_contours_area[i][j] = (0, 0, 0)
     cv.imshow("image with contours area", image_with_contours_area)
-
-    # store images on file
-    cv.imwrite("../test_images/original_image_0.jpg", image)
-    cv.imwrite("../test_images/bitwise_canny_percentile_0.jpg", bitwise_and_percentile_canny)
-    cv.imwrite("../test_images/hsv_image_0.jpg", hsv_filtered_image)
-    cv.imwrite("../test_images/bitwise_edges_on_image_0.jpg", bitwise_and_on_image_hsv)
-    cv.imwrite("../test_images/bitwise_canny_percentile_area_0.jpg", image_with_contours_area)
 
     cv.waitKey()
     cv.destroyAllWindows()

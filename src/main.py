@@ -8,7 +8,7 @@ import numpy as np
 from image_utils.image_opertions import StandardImageOperations as SIO
 
 
-image_path = "../media/20200402_104001.jpg"  # in the future we can set the path as argument or env var
+image_path = "../media/20200402_104001.jpg"
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ import numpy as np
 from image_utils.image_opertions import StandardImageOperations as SIO
 
 
-image_path = "../media/IMG 2020-04-29 CONTI MI01.jpeg"  # in the future we can set the path as argument or env var
+image_path = "../media/IMG 2020-04-29 CONTI MI01.jpeg"
 
 colors = []
 
