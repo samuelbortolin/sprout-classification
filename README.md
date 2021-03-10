@@ -13,7 +13,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Project of signal, image and video @ Università degli studi di Trento for sprout classification
+Project of signal, image and video @ Università degli studi di Trento for the detection of sprouts
 
 
 ## Setup
