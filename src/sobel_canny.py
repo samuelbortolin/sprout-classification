@@ -8,7 +8,7 @@ import numpy as np
 from image_utils.image_opertions import StandardImageOperations as SIO
 
 
-image_path = "../media/20200402_104028_001.jpg"
+image_path = "../images/image.extension"
 
 percentage = 85
 scale = 1
