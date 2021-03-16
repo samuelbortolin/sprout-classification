@@ -12,7 +12,6 @@
   - [color_picker](#color_picker)
   - [hsv_filter](#hsv_filter)
   - [main](#main)
-  - [sobel_canny](#sobel_canny)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -22,14 +21,13 @@ Project of signal, image and video @ University of Trento for the detection of s
 ## Project structure
 
     sprout-detection
-    ├── (images)                [ignored folder contining the images, you can add your images and change the `image.extension` in the files with the name of your images]
+    ├── (images)            [ignored folder where you can add your images and then change the "image.extension" in the files with the name of your images]
     └── src
         ├── image_utils               [package that contains the utils for images]
         |    └── image_operations               [library which contains the operations on images]
         ├── color_picker              [script to pick HSV colors and define ranges]
         ├── hsv_filter                [script to filter different kind of images]
-        ├── main                      [script to extract the relevant edges of the image, also using a hsv approach]
-        └── sobel_canny               [script to extract the relevant edges of the image using canny and sobel]
+        └── main                      [script to extract the relevant edges of the image using canny and sobel, also using a hsv filtering approach]
 
 
 ## Setup
@@ -94,7 +92,7 @@ or
 
 ### main
 
-Change the path with the image to analyze and run the program to extract the relevant edges of the image. It also tries a hsv approach and extracts edges on the hsv filtered image.
+Change the path with the image to analyze and run the program to extract the relevant edges of the image using canny and sobel. It also tries a hsv filtering approach and extracts edges on the hsv filtered image.
 
 The script can be run using one of the two set of commands:
 
@@ -108,22 +106,4 @@ or
 ```bash
     cd src
     python3 -m main
-```
-
-### sobel_canny
-
-Change the path with the image to analyze and run the program to extract the relevant edges of the image using canny and sobel. It also tries a hsv approach.
-
-The script can be run using one of the two set of commands:
-
-```bash
-    cd src
-    python3 sobel_canny.py
-```
-
-or
-
-```bash
-    cd src
-    python3 -m sobel_canny
 ```

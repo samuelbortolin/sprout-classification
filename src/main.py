@@ -10,12 +10,44 @@ from image_utils.image_opertions import StandardImageOperations as SIO
 
 image_path = "../images/image.extension"
 
+percentage = 85
+scale = 1
+delta = 0
+depth = cv.CV_16S
+n_derivative = 2
+
 
 if __name__ == "__main__":
 
-    image = cv.imread(image_path)  # in the future we can set the path as argument or env var
+    image = cv.imread(image_path)
     image = SIO.rescale_image(image)
+    cv.imshow("original image", image)
     greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+    # sobel
+    blurred_image = cv.GaussianBlur(image, (3, 3), 0)
+    greyscale_blurred_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2GRAY)
+
+    # try with sobel
+    gradient_x = cv.Sobel(greyscale_blurred_image, depth, n_derivative, 0, ksize=3, scale=scale, delta=delta, borderType=cv.BORDER_DEFAULT)
+    gradient_y = cv.Sobel(greyscale_blurred_image, depth, 0, n_derivative, ksize=3, scale=scale, delta=delta, borderType=cv.BORDER_DEFAULT)
+    abs_gradient_x = cv.convertScaleAbs(gradient_x)
+    abs_gradient_y = cv.convertScaleAbs(gradient_y)
+    gradient_image = cv.addWeighted(abs_gradient_x, 0.5, abs_gradient_y, 0.5, 0)
+    kernel = np.ones((3, 3), np.uint8)
+    close_after_sobel = cv.morphologyEx(gradient_image, cv.MORPH_CLOSE, kernel)
+    open_after_close_on_sobel = cv.morphologyEx(close_after_sobel, cv.MORPH_OPEN, kernel)
+    positive_values_array = []
+    for i, item_i in enumerate(open_after_close_on_sobel):
+        for j, item_j in enumerate(item_i):
+            if item_j > 0:
+                positive_values_array.append(item_j)
+    percentile = np.percentile(positive_values_array, percentage)
+
+    for i, item_i in enumerate(open_after_close_on_sobel):
+        for j, item_j in enumerate(item_i):
+            if item_j <= percentile:
+                open_after_close_on_sobel[i, j] = 0
 
     # try a edge detector approach
     previous_threshold = SIO.canny_elements(greyscale_image, 25)
@@ -30,15 +62,29 @@ if __name__ == "__main__":
             break
         previous_delta = delta
 
-    # show the original and the resulting image
-    cv.imshow("original image", image)
     edges_on_image = SIO.canny_on_image(greyscale_image, picked_threshold, image)
-    cv.imshow("relevant edges of the image", edges_on_image)
+    edged_image = SIO.canny_edges(greyscale_image, picked_threshold)
+    bitwise_and_percentile_canny = np.zeros((len(image), len(image[0])))
+    for i, item_i in enumerate(edged_image):
+        for j, item_j in enumerate(item_i):
+            if item_j.any() > 0 and open_after_close_on_sobel[i, j] > 0:
+                bitwise_and_percentile_canny[i, j] = int(255)
+            else:
+                bitwise_and_percentile_canny[i, j] = int(0)
+    bitwise_and_percentile_canny = bitwise_and_percentile_canny.astype(np.uint8)
+    cv.imshow("bitwise_and percentile canny", bitwise_and_percentile_canny)
+
+    image_and_edges = deepcopy(image)
+    for i, item_i in enumerate(edges_on_image):
+        for j, item_j in enumerate(item_i):
+            if item_j.all() != 0:
+                image_and_edges[i][j] = (0, 0, 255)
+    cv.imshow("edges on original image", image_and_edges)
 
     # try to use area
-    contour_image = SIO.canny_edges(greyscale_image, picked_threshold)
-    contour_tuple = cv.findContours(contour_image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    contour_tuple = cv.findContours(bitwise_and_percentile_canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     contours = SIO.grab_contours(contour_tuple)
+    contour_image = deepcopy(bitwise_and_percentile_canny)
 
     for contour in contours:
         cv.drawContours(contour_image, [contour], 0, (100, 5, 10), 10)
@@ -55,19 +101,7 @@ if __name__ == "__main__":
     hsv_filtered_image = SIO.get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV), color)
     cv.imshow("hsv filtered image", hsv_filtered_image)
     edges_after_hsv = SIO.canny_on_image(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), picked_threshold, hsv_filtered_image)
-    cv.imshow("relevant edges of the image after hsv", edges_after_hsv)
-    cv.imshow("edges bitwise_and", cv.bitwise_and(edges_on_image, edges_after_hsv))
-
-    # show original image and hsv filtered image with the edges marked with a red line
-    image_and_edges = deepcopy(image)
-    hsv_filtered_image_and_edges = deepcopy(hsv_filtered_image)
-    for i, item_i in enumerate(edges_on_image):
-        for j, item_j in enumerate(item_i):
-            if item_j.all() != 0:
-                image_and_edges[i][j] = (0, 0, 255)
-                hsv_filtered_image_and_edges[i][j] = (0, 0, 255)
-    cv.imshow("edges on original image", image_and_edges)
-    cv.imshow("edges on hsv filtered image", hsv_filtered_image_and_edges)
+    cv.imshow("edges bitwise_and canny and hsv", cv.bitwise_and(edges_on_image, edges_after_hsv))
 
     image_and_edges_hsv = deepcopy(image)
     hsv_filtered_image_and_edges_hsv = deepcopy(hsv_filtered_image)
@@ -78,50 +112,6 @@ if __name__ == "__main__":
                 hsv_filtered_image_and_edges_hsv[i][j] = (0, 0, 255)
     cv.imshow("edges after hsv on original image", image_and_edges_hsv)
     cv.imshow("edges after hsv on hsv filtered image", hsv_filtered_image_and_edges_hsv)
-
-    # try a watershed segmentation approach
-    thresh = cv.adaptiveThreshold(greyscale_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2)
-    kernel = np.ones((3, 3), np.uint8)
-    closing = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel, iterations=2)
-    opening = cv.morphologyEx(closing, cv.MORPH_OPEN, kernel)
-    image_with_threshold_area = deepcopy(image)
-    for i, item_i in enumerate(opening):
-        for j, item_j in enumerate(item_i):
-            if item_j.all() == 0:
-                image_with_threshold_area[i][j] = (0, 0, 0)
-    cv.imshow("image after threshold closed image", image_with_threshold_area)
-
-    # show threshold image with the edges marked with a red line
-    bgr_threshold = cv.cvtColor(thresh, cv.COLOR_GRAY2BGR)
-    for i, item_i in enumerate(edges_on_image):
-        for j, item_j in enumerate(item_i):
-            if item_j.all() != 0:
-                bgr_threshold[i][j] = (0, 0, 255)
-    cv.imshow("edges on threshold image", bgr_threshold)
-
-    # noise removal ( we can try to play on the morphological operators)
-    kernel = np.ones((3, 3), np.uint8)
-    opening = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel, iterations=2)
-    # sure background area
-    sure_background = cv.dilate(opening, kernel, iterations=3)
-    # sure foreground area
-    dist_transform = cv.distanceTransform(opening, cv.DIST_L2, 5)
-    ret, sure_foreground = cv.threshold(dist_transform, 0.7 * dist_transform.max(), 255, 0)
-    sure_foreground = np.uint8(sure_foreground)
-    # unknown region
-    unknown = cv.subtract(sure_background, sure_foreground)
-
-    # Marker labelling
-    ret, markers = cv.connectedComponents(sure_foreground)  # maybe markers with only sure_fg are less effective in the segmentation
-
-    # Add one to all labels so that sure background is not 0, but 1
-    markers = markers + 1
-    # mark the region of unknown with zero
-    markers[unknown == 255] = 0
-
-    markers = cv.watershed(image, markers)
-    image[markers == -1] = [0, 0, 255]
-    cv.imshow("watershed image", image)
 
     cv.waitKey()
     cv.destroyAllWindows()
