@@ -5,33 +5,33 @@ import cv2 as cv
 from image_utils.image_opertions import StandardImageOperations as SIO
 
 
-image_flowers_path = "../media/ROBI_VT01_20200507_3.png"
-image_leaves_path = "../media/FOTO1ROBI_MI02_20200422.jpg"
-image_branches_path = "../media/image.jpg"
+flowers_image_path = "../images/flowers_image.extension"
+leaves_image_path = "../images/leaves_image.extension"
+branches_image_path = "../images/branches_image.extension"
 
 
 if __name__ == "__main__":
 
     # x flowers
-    image = cv.imread(image_flowers_path)
+    image = cv.imread(flowers_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    cv.imshow("result after applying hsv mask", SIO.get_hsv_mask(image, hsv_image, "w"))
+    cv.imshow("result after applying hsv mask to image with flowers", SIO.get_hsv_mask(image, hsv_image, "w"))
     cv.waitKey()
     cv.destroyAllWindows()
 
     # x leaves
-    image = cv.imread(image_leaves_path)
+    image = cv.imread(leaves_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    cv.imshow("result after applying hsv mask", SIO.get_hsv_mask(image, hsv_image, "g"))
+    cv.imshow("result after applying hsv mask to image with leaves", SIO.get_hsv_mask(image, hsv_image, "g"))
     cv.waitKey()
     cv.destroyAllWindows()
 
     # x branches
-    image = cv.imread(image_branches_path)
+    image = cv.imread(branches_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    cv.imshow("result after applying hsv mask", SIO.get_hsv_mask(image, hsv_image, "b"))
+    cv.imshow("result after applying hsv mask to image with branches", SIO.get_hsv_mask(image, hsv_image, "b"))
     cv.waitKey()
     cv.destroyAllWindows()

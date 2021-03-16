@@ -1,6 +1,6 @@
-# media
-media/
-test_images/
+# images folder
+**/images/
+**/test_images/
 
 # PyCharm files
 .idea

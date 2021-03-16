@@ -81,10 +81,14 @@ class StandardImageOperations:
         """
 
         if color == "w":
-            lower_bound = np.array([0, 0, 75])
-            upper_bound = np.array([90, 255, 255])
+            lower_bound = np.array([0, 0, 50])
+            upper_bound = np.array([35, 255, 255])
             lower_image = StandardImageOperations.apply_hsv_mask(original_image, hsv_image, lower_bound, upper_bound)
-            lower_bound = np.array([115, 0, 75])
+            lower_bound = np.array([75, 0, 50])
+            upper_bound = np.array([90, 255, 255])
+            upper_image = StandardImageOperations.apply_hsv_mask(original_image, hsv_image, lower_bound, upper_bound)
+            lower_image = cv.bitwise_or(lower_image, upper_image)
+            lower_bound = np.array([110, 0, 50])
             upper_bound = np.array([179, 255, 255])
             upper_image = StandardImageOperations.apply_hsv_mask(original_image, hsv_image, lower_bound, upper_bound)
             return cv.bitwise_or(lower_image, upper_image)

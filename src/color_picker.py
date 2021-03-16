@@ -6,7 +6,7 @@ import numpy as np
 from image_utils.image_opertions import StandardImageOperations as SIO
 
 
-image_path = "../media/IMG 2020-04-29 CONTI MI01.jpeg"
+image_path = "../images/image.extension"
 
 colors = []
 
@@ -80,10 +80,10 @@ if __name__ == "__main__":
     mask_upper = cv.inRange(hsv_image, lower_bound, upper_bound)
     result_upper_image = cv.bitwise_and(image, image, mask=mask_upper)
 
-    bitwise_mask = np.bitwise_or(mask_lower, mask_upper)
-    result_bitwise_image = cv.bitwise_and(image, image, mask=bitwise_mask)
-    cv.imshow("bitwise mask", bitwise_mask)
-    cv.imshow("result bitwise image", result_bitwise_image)
+    complementary_h_mask = np.bitwise_or(mask_lower, mask_upper)
+    result_complementary_h_image = cv.bitwise_and(image, image, mask=complementary_h_mask)
+    cv.imshow("complementary H mask", complementary_h_mask)
+    cv.imshow("result complementary H image", result_complementary_h_image)
 
     cv.waitKey()
     cv.destroyAllWindows()
