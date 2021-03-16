@@ -74,7 +74,7 @@ or
 
 ### hsv_filter
 
-Change the path with the different types of images to analyze and run the program to filter via hsv these images.
+Change the path with the different types of images to analyze and run the script to filter via hsv these images.
 
 The script can be run using one of the two set of commands:
 
@@ -92,7 +92,7 @@ or
 
 ### main
 
-Change the path with the image to analyze and run the program to extract the relevant edges of the image using canny and sobel. It also tries a hsv filtering approach and extracts edges on the hsv filtered image.
+Change the path with the image to analyze and run the script to extract the relevant edges of the image using canny and sobel. It also tries a hsv filtering approach and extracts edges on the hsv filtered image.
 
 The script can be run using one of the two set of commands:
 
