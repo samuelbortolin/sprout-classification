@@ -95,7 +95,7 @@ if __name__ == "__main__":
     cv.imshow("image with contours area", image_with_contours_area)
 
     # try hsv color filter after edges
-    color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches: ")
+    color = input("What do you want to analyze? Type f for flowers, l for leaves or b for branches: ")
     hsv_filtered_image = SIO.get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV), color)
     cv.imshow("hsv filtered image", hsv_filtered_image)
 

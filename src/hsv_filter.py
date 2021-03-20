@@ -16,7 +16,7 @@ if __name__ == "__main__":
     image = cv.imread(flowers_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    cv.imshow("result after applying hsv mask to image with flowers", SIO.get_hsv_mask(image, hsv_image, "w"))
+    cv.imshow("result after applying hsv mask to image with flowers", SIO.get_hsv_mask(image, hsv_image, "f"))
     cv.waitKey()
     cv.destroyAllWindows()
 
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     image = cv.imread(leaves_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    cv.imshow("result after applying hsv mask to image with leaves", SIO.get_hsv_mask(image, hsv_image, "g"))
+    cv.imshow("result after applying hsv mask to image with leaves", SIO.get_hsv_mask(image, hsv_image, "l"))
     cv.waitKey()
     cv.destroyAllWindows()
 
