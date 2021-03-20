@@ -24,11 +24,9 @@ if __name__ == "__main__":
     cv.imshow("original image", image)
     greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-    # sobel
+    # try with sobel
     blurred_image = cv.GaussianBlur(image, (3, 3), 0)
     greyscale_blurred_image = cv.cvtColor(blurred_image, cv.COLOR_BGR2GRAY)
-
-    # try with sobel
     gradient_x = cv.Sobel(greyscale_blurred_image, depth, n_derivative, 0, ksize=3, scale=scale, delta=delta, borderType=cv.BORDER_DEFAULT)
     gradient_y = cv.Sobel(greyscale_blurred_image, depth, 0, n_derivative, ksize=3, scale=scale, delta=delta, borderType=cv.BORDER_DEFAULT)
     abs_gradient_x = cv.convertScaleAbs(gradient_x)
@@ -37,6 +35,7 @@ if __name__ == "__main__":
     kernel = np.ones((3, 3), np.uint8)
     close_after_sobel = cv.morphologyEx(gradient_image, cv.MORPH_CLOSE, kernel)
     open_after_close_on_sobel = cv.morphologyEx(close_after_sobel, cv.MORPH_OPEN, kernel)
+
     positive_values_array = []
     for i, item_i in enumerate(open_after_close_on_sobel):
         for j, item_j in enumerate(item_i):
@@ -62,7 +61,6 @@ if __name__ == "__main__":
             break
         previous_delta = delta
 
-    edges_on_image = SIO.canny_on_image(greyscale_image, picked_threshold, image)
     edged_image = SIO.canny_edges(greyscale_image, picked_threshold)
     bitwise_and_percentile_canny = np.zeros((len(image), len(image[0])))
     for i, item_i in enumerate(edged_image):
@@ -72,12 +70,12 @@ if __name__ == "__main__":
             else:
                 bitwise_and_percentile_canny[i, j] = int(0)
     bitwise_and_percentile_canny = bitwise_and_percentile_canny.astype(np.uint8)
-    cv.imshow("bitwise_and percentile canny", bitwise_and_percentile_canny)
+    cv.imshow("bitwise_and sobel percentile canny", bitwise_and_percentile_canny)
 
     image_and_edges = deepcopy(image)
-    for i, item_i in enumerate(edges_on_image):
+    for i, item_i in enumerate(bitwise_and_percentile_canny):
         for j, item_j in enumerate(item_i):
-            if item_j.all() != 0:
+            if item_j != 0:
                 image_and_edges[i][j] = (0, 0, 255)
     cv.imshow("edges on original image", image_and_edges)
 
@@ -96,16 +94,25 @@ if __name__ == "__main__":
                 image_with_contours_area[i][j] = (0, 0, 0)
     cv.imshow("image with contours area", image_with_contours_area)
 
-    # try color after edges
-    color = input("What do you want to analyze? Write w for white/flowers, g for green/leaves or b for brown/branches: ")
+    # try hsv color filter after edges
+    color = input("What do you want to analyze? Type f for flowers, l for leaves or b for branches: ")
     hsv_filtered_image = SIO.get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV), color)
     cv.imshow("hsv filtered image", hsv_filtered_image)
-    edges_after_hsv = SIO.canny_on_image(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), picked_threshold, hsv_filtered_image)
-    cv.imshow("edges bitwise_and canny and hsv", cv.bitwise_and(edges_on_image, edges_after_hsv))
+
+    edged_hsv_image = SIO.canny_edges(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), picked_threshold)
+    bitwise_and_canny_hsv = np.zeros((len(image), len(image[0])))
+    for i, item_i in enumerate(cv.bitwise_and(edged_image, edged_hsv_image)):
+        for j, item_j in enumerate(item_i):
+            if item_j.any() > 0 and open_after_close_on_sobel[i, j] > 0:
+                bitwise_and_canny_hsv[i, j] = int(255)
+            else:
+                bitwise_and_canny_hsv[i, j] = int(0)
+    bitwise_and_canny_hsv = bitwise_and_canny_hsv.astype(np.uint8)
+    cv.imshow("edges bitwise_and sobel-canny and hsv", bitwise_and_canny_hsv)
 
     image_and_edges_hsv = deepcopy(image)
     hsv_filtered_image_and_edges_hsv = deepcopy(hsv_filtered_image)
-    for i, item_i in enumerate(cv.bitwise_and(edges_on_image, edges_after_hsv)):
+    for i, item_i in enumerate(bitwise_and_canny_hsv):
         for j, item_j in enumerate(item_i):
             if item_j.all() != 0:
                 image_and_edges_hsv[i][j] = (0, 0, 255)

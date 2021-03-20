@@ -80,7 +80,7 @@ class StandardImageOperations:
         Applying an hsv mask based on a color of interest on the original image
         """
 
-        if color == "w":
+        if color == "f":
             lower_bound = np.array([0, 0, 50])
             upper_bound = np.array([35, 255, 255])
             lower_image = StandardImageOperations.apply_hsv_mask(original_image, hsv_image, lower_bound, upper_bound)
@@ -92,7 +92,7 @@ class StandardImageOperations:
             upper_bound = np.array([179, 255, 255])
             upper_image = StandardImageOperations.apply_hsv_mask(original_image, hsv_image, lower_bound, upper_bound)
             return cv.bitwise_or(lower_image, upper_image)
-        elif color == "g":
+        elif color == "l":
             lower_bound = np.array([20, 0, 0])
             upper_bound = np.array([80, 255, 255])
         elif color == "b":
