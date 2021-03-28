@@ -1,8 +1,13 @@
 # change-log
 
+## 1.2.1
+
+* code refactoring
+
+
 ## 1.2.0
 
-* Code refactor and updated image_operations library
+* Code refactoring and updated image_operations library
 * Recomputed the threshold for hsv edges
 
 
