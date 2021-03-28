@@ -18,13 +18,11 @@ if __name__ == "__main__":
     cv.imshow("original image", image)
     greyscale_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-    # try with sobel
+    # try an edge detector approach
     sobel_edges = SIO.sobel_edges(greyscale_image)
     sobel_edges_after_percentile_removal = SIO.remove_percentile(sobel_edges)
+    canny_edges = SIO.canny_edges(greyscale_image, SIO.find_canny_best_threshold(greyscale_image))
 
-    # try a edge detector approach
-    picked_threshold = SIO.find_best_threshold(greyscale_image)
-    canny_edges = SIO.canny_edges(greyscale_image, picked_threshold)
     canny_bitwise_and_sobel_after_percentile_removal = np.zeros((len(image), len(image[0])))
     for i, item_i in enumerate(canny_edges):
         for j, item_j in enumerate(item_i):
@@ -62,8 +60,7 @@ if __name__ == "__main__":
     hsv_filtered_image = SIO.get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV), color)
     cv.imshow("hsv filtered image", hsv_filtered_image)
 
-    picked_threshold = SIO.find_best_threshold(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY))
-    hsv_edges = SIO.canny_edges(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), picked_threshold)
+    hsv_edges = SIO.canny_edges(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), SIO.find_canny_best_threshold(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY)))
     hsv_bitwise_and_canny_and_sobel = np.zeros((len(image), len(image[0])))
     for i, item_i in enumerate(cv.bitwise_and(canny_edges, hsv_edges)):
         for j, item_j in enumerate(item_i):

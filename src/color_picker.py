@@ -39,6 +39,7 @@ def callback(x):
 
 if __name__ == "__main__":
 
+    # selects points to build a mask
     while True:
         image = cv.imread(image_path)
         image = SIO.rescale_image(image)
@@ -104,6 +105,7 @@ if __name__ == "__main__":
     cv.createTrackbar("high_V", "control_V", 255, 255, callback)
     cv.resizeWindow("control_V", 400, 20)
 
+    # move trackbars to build a mask
     while True:
         image = cv.imread(image_path)
         image = SIO.rescale_image(image)

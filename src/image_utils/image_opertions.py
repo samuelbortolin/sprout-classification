@@ -40,16 +40,20 @@ class StandardImageOperations:
             return contour_tuple[1]
 
     @staticmethod
-    def find_best_threshold(greyscale_image):
+    def find_canny_best_threshold(greyscale_image: np.ndarray):
+        """
+        Find the best threshold for canny edge detector
+        """
+
         canny_on_previous_threshold = StandardImageOperations.canny_elements(greyscale_image, 25)
         canny_previous_delta = StandardImageOperations.canny_elements(greyscale_image, 24) - canny_on_previous_threshold
         picked_threshold = 0
-        for i in range(26, 1000):
-            canny_on_new_threshold = StandardImageOperations.canny_elements(greyscale_image, i)
+        for threshold_value in range(26, 1000):
+            canny_on_new_threshold = StandardImageOperations.canny_elements(greyscale_image, threshold_value)
             canny_new_delta = canny_on_previous_threshold - canny_on_new_threshold
             canny_on_previous_threshold = canny_on_new_threshold
             if (canny_new_delta + canny_previous_delta) < 50:
-                picked_threshold = i
+                picked_threshold = threshold_value
                 break
             canny_previous_delta = canny_new_delta
         return picked_threshold

@@ -92,7 +92,7 @@ or
 
 ### main
 
-Change the path with the image to analyze and run the script to extract the relevant edges of the image using canny and sobel. It also tries a hsv filtering approach and extracts edges on the hsv filtered image.
+Change the path with the image to analyze and run the script to extract the relevant edges of the image using canny and sobel. It also tries a hsv color filtering approach and extracts edges on the hsv filtered image.
 
 The script can be run using one of the two set of commands:
 

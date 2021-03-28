@@ -12,7 +12,7 @@ branches_image_path = "../images/branches_image.extension"
 
 if __name__ == "__main__":
 
-    # x flowers
+    # hsv color filter applied to flowers
     image = cv.imread(flowers_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     cv.waitKey()
     cv.destroyAllWindows()
 
-    # x leaves
+    # hsv color filter applied to leaves
     image = cv.imread(leaves_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     cv.waitKey()
     cv.destroyAllWindows()
 
-    # x branches
+    # hsv color filter applied to branches
     image = cv.imread(branches_image_path)
     image = SIO.rescale_image(image)
     hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
