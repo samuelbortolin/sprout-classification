@@ -1,9 +1,16 @@
 # change-log
 
+## 1.2.0
+
+* Code refactor and updated image_operations library
+* Recomputed the threshold for hsv edges
+
+
 ## 1.1.1
 
 * Minor fixes and refactoring of the main
 * Refactored the hsv color request
+
 
 ## 1.1.0
 
