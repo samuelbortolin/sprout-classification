@@ -9,8 +9,8 @@ import numpy as np
 
 class StandardImageOperations:
 
-    ratio = 3  # we can try to set a high threshold instead of using this ratio
-    kernel_size = 3  # we can try to understand what is that
+    ratio = 3
+    kernel_size = 3
     scale = 1
     delta = 0
     depth = cv.CV_16S
@@ -38,9 +38,11 @@ class StandardImageOperations:
         # for OpenCV v3
         elif len(contour_tuple) == 3:
             return contour_tuple[1]
+        else:
+            return []
 
     @staticmethod
-    def find_canny_best_threshold(greyscale_image: np.ndarray):
+    def find_canny_best_threshold(greyscale_image: np.ndarray) -> int:
         """
         Find the best threshold for canny edge detector
         """
@@ -96,14 +98,16 @@ class StandardImageOperations:
         """
 
         greyscale_blurred_image = cv.GaussianBlur(greyscale_image, (3, 3), 0)
-        gradient_x = cv.Sobel(greyscale_blurred_image, StandardImageOperations.depth, StandardImageOperations.n_derivative, 0, ksize=StandardImageOperations.kernel_size,
-                              scale=StandardImageOperations.scale, delta=StandardImageOperations.delta, borderType=cv.BORDER_DEFAULT)
-        gradient_y = cv.Sobel(greyscale_blurred_image, StandardImageOperations.depth, 0, StandardImageOperations.n_derivative, ksize=StandardImageOperations.kernel_size,
-                              scale=StandardImageOperations.scale, delta=StandardImageOperations.delta, borderType=cv.BORDER_DEFAULT)
+        gradient_x = cv.Sobel(greyscale_blurred_image, StandardImageOperations.depth, StandardImageOperations.n_derivative, 0,
+                              ksize=StandardImageOperations.kernel_size, scale=StandardImageOperations.scale,
+                              delta=StandardImageOperations.delta, borderType=cv.BORDER_DEFAULT)
+        gradient_y = cv.Sobel(greyscale_blurred_image, StandardImageOperations.depth, 0, StandardImageOperations.n_derivative,
+                              ksize=StandardImageOperations.kernel_size, scale=StandardImageOperations.scale,
+                              delta=StandardImageOperations.delta, borderType=cv.BORDER_DEFAULT)
         abs_gradient_x = cv.convertScaleAbs(gradient_x)
         abs_gradient_y = cv.convertScaleAbs(gradient_y)
         gradient_image = cv.addWeighted(abs_gradient_x, 0.5, abs_gradient_y, 0.5, 0)
-        kernel = np.ones((3, 3), np.uint8)
+        kernel = np.ones((StandardImageOperations.kernel_size, StandardImageOperations.kernel_size), np.uint8)
         close_after_sobel = cv.morphologyEx(gradient_image, cv.MORPH_CLOSE, kernel)
         return cv.morphologyEx(close_after_sobel, cv.MORPH_OPEN, kernel)
 
@@ -135,7 +139,6 @@ class StandardImageOperations:
         """
 
         mask = cv.inRange(hsv_image, lower_bound, upper_bound)
-        # mask = cv.morphologyEx(mask, cv.MORPH_OPEN, (5, 5), iterations=1)
         return cv.bitwise_and(original_image, original_image, mask=mask)
 
     @staticmethod

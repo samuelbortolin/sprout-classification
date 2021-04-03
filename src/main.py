@@ -5,7 +5,7 @@ from copy import deepcopy
 import cv2 as cv
 import numpy as np
 
-from image_utils.image_opertions import StandardImageOperations as SIO
+from image_utils.standard_image_operations import StandardImageOperations as SIO
 
 
 image_path = "../images/image.extension"
