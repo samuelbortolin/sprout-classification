@@ -1,5 +1,10 @@
 # change-log
 
+## 1.2.3
+
+* Renamed imshow window names
+
+
 ## 1.2.2
 
 * Updated documentation and minor code refactoring
