@@ -24,17 +24,17 @@ Project of signal, image and video @ University of Trento for the detection of s
     ├── (images)            [ignored folder where you can add your images and then change the "image.extension" in the files with the name of your images]
     └── src
         ├── image_utils               [package that contains the utils for images]
-        |    └── image_operations               [library which contains the operations on images]
+        |    └── standard_image_operations               [library which contains the main operations on images]
         ├── color_picker              [script to pick HSV colors and define ranges]
-        ├── hsv_filter                [script to filter different kind of images]
-        └── main                      [script to extract the relevant edges of the image using canny and sobel, also using a hsv filtering approach]
+        ├── hsv_filter                [script to try our standard HSV filter on different kind of images]
+        └── main                      [script to extract the relevant edges of the image using canny and sobel, also using an HSV filtering approach]
 
 
 ## Setup
 
 ### Installation
 
-This repository can be clones using the command:
+This repository can be cloned using the command:
 
 ```bash
     git clone https://github.com/samuelbortolin/sprout-detection.git
@@ -54,9 +54,9 @@ Required Python packages can be installed using the command:
 
 ### color_picker
 
-Change the path with the image to analyze and run the script to:
-* in a first phase to select the pixels and get the values;
-* in a second phase to build a filter.
+Change the path with the image to analyze and run the script:
+* in the first phase it allows you to pick pixels from an image and then clicking `q` it returns the range of HSV values that contains all the selected pixels;
+* in the second phase it allows you to build an HSV filter using trackbars to modify the value of hue, saturation and value, clicking a button it updates HSV filtered image and clicking `q` it returns the range of HSV values selected with the trackbars.
 
 The script can be run using one of the two set of commands:
 
@@ -74,7 +74,7 @@ or
 
 ### hsv_filter
 
-Change the path with the different types of images to analyze and run the script to filter via hsv these images.
+Change the path with the different types of images containing flowers, leaves or branches to analyze and run the script: it performs an isolation of the color for these images using our standard HSV filter.
 
 The script can be run using one of the two set of commands:
 
@@ -92,7 +92,7 @@ or
 
 ### main
 
-Change the path with the image to analyze and run the script to extract the relevant edges of the image using canny and sobel. It also tries a hsv color filtering approach and extracts edges on the hsv filtered image.
+Change the path with the image to analyze and run the script: it extracts the relevant edges of the image using canny and sobel. It also tries an HSV color filtering approach and extracts the relevant edges of the HSV filtered image.
 
 The script can be run using one of the two set of commands:
 

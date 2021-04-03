@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 import cv2 as cv
 import numpy as np
 
-from image_utils.image_opertions import StandardImageOperations as SIO
+from image_utils.standard_image_operations import StandardImageOperations as SIO
 
 
 image_path = "../images/image.extension"
@@ -19,7 +19,7 @@ V_high = 255
 
 
 def on_mouse_click(event, x, y, flags, hsv_image):
-    # mouse click function to store the HSV value
+    # mouse click function to store the hsv value
 
     if event == cv.EVENT_LBUTTONUP:
         colors.append(hsv_image[y, x].tolist())
@@ -116,8 +116,8 @@ if __name__ == "__main__":
 
         mask = cv.inRange(hsv_image, lower_bound, upper_bound)
         result_image = cv.bitwise_and(image, image, mask=mask)
-        cv.imshow("mask", mask)
-        cv.imshow("result image", result_image)
+        cv.imshow("hsv mask", mask)
+        cv.imshow("hsv filtered image", result_image)
 
         if cv.waitKey() & 0xFF == ord("q"):
             break
