@@ -114,7 +114,7 @@ class StandardImageOperations:
     @staticmethod
     def remove_percentile(greyscale_image: np.ndarray) -> np.ndarray:
         """
-        Remove percentile from a grey scale image
+        Remove percentile from a greyscale image
         """
 
         positive_values_array = []
@@ -144,7 +144,7 @@ class StandardImageOperations:
     @staticmethod
     def get_hsv_mask(original_image: np.ndarray, hsv_image: np.ndarray, color: str) -> np.ndarray:
         """
-        Applying an hsv mask based on a color of interest on the original image
+        Apply an hsv mask based on a color of interest on the original image
         """
 
         if color == "f":

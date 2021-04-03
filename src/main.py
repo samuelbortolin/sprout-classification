@@ -31,14 +31,14 @@ if __name__ == "__main__":
             else:
                 canny_bitwise_and_sobel_after_percentile_removal[i, j] = int(0)
     canny_bitwise_and_sobel_after_percentile_removal = canny_bitwise_and_sobel_after_percentile_removal.astype(np.uint8)
-    cv.imshow("canny bitwise_and sobel after percentile removal", canny_bitwise_and_sobel_after_percentile_removal)
+    cv.imshow("Sobel-Canny edges approach", canny_bitwise_and_sobel_after_percentile_removal)
 
     image_and_edges = deepcopy(image)
     for i, item_i in enumerate(canny_bitwise_and_sobel_after_percentile_removal):
         for j, item_j in enumerate(item_i):
             if item_j != 0:
                 image_and_edges[i][j] = (0, 0, 255)
-    cv.imshow("edges on original image", image_and_edges)
+    cv.imshow("Sobel-Canny edges on original image", image_and_edges)
 
     # try to use area
     contour_tuple = cv.findContours(canny_bitwise_and_sobel_after_percentile_removal, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
@@ -53,12 +53,12 @@ if __name__ == "__main__":
         for j, item_j in enumerate(item_i):
             if item_j.all() == 0:
                 image_with_contours_area[i][j] = (0, 0, 0)
-    cv.imshow("image with contours area", image_with_contours_area)
+    cv.imshow("contours area approach", image_with_contours_area)
 
     # try hsv color filter after edges
     color = input("What do you want to analyze? Type f for flowers, l for leaves or b for branches: ")
     hsv_filtered_image = SIO.get_hsv_mask(image, cv.cvtColor(image, cv.COLOR_BGR2HSV), color)
-    cv.imshow("hsv filtered image", hsv_filtered_image)
+    cv.imshow("hsv-filtered image", hsv_filtered_image)
 
     hsv_edges = SIO.canny_edges(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY), SIO.find_canny_best_threshold(cv.cvtColor(hsv_filtered_image, cv.COLOR_BGR2GRAY)))
     hsv_bitwise_and_canny_and_sobel = np.zeros((len(image), len(image[0])))
@@ -69,7 +69,7 @@ if __name__ == "__main__":
             else:
                 hsv_bitwise_and_canny_and_sobel[i, j] = int(0)
     hsv_bitwise_and_canny_and_sobel = hsv_bitwise_and_canny_and_sobel.astype(np.uint8)
-    cv.imshow("hsv bitwise_and sobel-canny", hsv_bitwise_and_canny_and_sobel)
+    cv.imshow("hsv-filtering edges + Sobel-Canny edges approach", hsv_bitwise_and_canny_and_sobel)
 
     image_and_edges_hsv = deepcopy(image)
     hsv_filtered_image_and_edges_hsv = deepcopy(hsv_filtered_image)
@@ -78,8 +78,8 @@ if __name__ == "__main__":
             if item_j.all() != 0:
                 image_and_edges_hsv[i][j] = (0, 0, 255)
                 hsv_filtered_image_and_edges_hsv[i][j] = (0, 0, 255)
-    cv.imshow("edges after hsv on original image", image_and_edges_hsv)
-    cv.imshow("edges after hsv on hsv filtered image", hsv_filtered_image_and_edges_hsv)
+    cv.imshow("hsv-filtering edges + Sobel-Canny edges approach on original image", image_and_edges_hsv)
+    cv.imshow("hsv-filtering edges + Sobel-Canny edges approach on the hsv-filtered image", hsv_filtered_image_and_edges_hsv)
 
     cv.waitKey()
     cv.destroyAllWindows()
